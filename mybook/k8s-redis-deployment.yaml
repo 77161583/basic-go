@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mybook-live-redis
+  labels:
+    app: mybook-live-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mybook-live-redis
+  template:
+    metadata:
+      name: mybook-live-redis
+      labels:
+        app: mybook-live-redis
+    spec:
+      containers:
+        - name: mybook-live-redis
+          image: redis:latest
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      

@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mybook-live-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    #当host 是live.mybook.com， 命中这条
+    - host: live.mybook.com
+      http:
+        paths:
+#          - 请求路径是 / 的时候
+#          - 将流量转发到后面的 mybook-live 服务上
+#          - 端口8081
+          - backend:
+              #下面的name 和 port 对应的是 k8s-mybooke-service.yaml里的值
+              service:
+                name: mybook-live
+                port:
+                  number: 8081
+            pathType: Prefix
+            path: /
+
+

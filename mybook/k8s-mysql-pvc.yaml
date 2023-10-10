@@ -1,0 +1,18 @@
+#pvc => PersistentVolumeClaim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  #这个是指我 mysql 要用多东西
+  name: mybook-mysql-live-claim
+spec:
+  #这个可以随便
+  storageClassName: more1
+  accessModes:
+    - ReadWriteOnce #只有一个读写
+#    - ReadOnlyMany  #可以多个人多，但只有一个写
+#    - ReadWriteMany #读写可以多人
+  resources:
+    requests:
+#      1 GB
+      storage: 1Gi
+  

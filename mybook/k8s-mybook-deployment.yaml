@@ -1,0 +1,40 @@
+#这一行指定了使用的Kubernetes API版本，这里是apps/v1，表示你正在创建一个Deployment对象。
+apiVersion: apps/v1
+#这行指定了要创建的Kubernetes对象的类型，这里是Deployment，表示你要创建一个Deployment。
+kind: Deployment
+#这是Deployment对象的元数据部分，包含了Deployment的名称
+metadata:
+  #这一行指定了Deployment的名称，它被设置为"mybook-live"。
+  name: mybook-live
+#  specification（规范）部分开始
+spec:
+  # 副本数量 - 这里定义要创建的Pod的副本数量
+  replicas: 2
+  selector:
+    #这里定义了一个标签选择器，它匹配具有标签"app: mybook-live"的Pod。Deployment将控制这些Pod。
+    matchLabels:
+      app: mybook-live
+  # template 描述的是你的 POD 是什么样的
+  template:
+    #这里定义了Pod模板的元数据，包括标签。
+    metadata:
+      #这里定义了Pod的标签，设置为"app: mybook-live"，与选择器匹配。
+      labels:
+        app: mybook-live
+    # POD 的具体信息
+    spec:
+      containers:
+        # 第一个容器的名称
+        - name: mybook-pod1
+          # 第一个容器使用的镜像
+          image: lee/mybook-live:v0.0.1
+          ports:
+            # 第一个容器监听的端口
+            - containerPort: 8083
+#        # 第二个容器的名称
+#        - name: mybook-pod2
+#          # 第二个容器使用的镜像
+#          image: lee/mybook-live:v0.0.1
+#          # 第二个容器监听的端口
+#          ports:
+#            - containerPort: 8083

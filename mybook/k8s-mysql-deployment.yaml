@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mybook-live-mysql
+  labels:
+    app: mybook-live-mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mybook-live-mysql
+  template:
+    metadata:
+      name: mybook-live-mysql
+      labels:
+        app: mybook-live-mysql
+    spec:
+      containers:
+        - name: mybook-live-mysql
+          image: mysql:8.0
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: root
+          imagePullPolicy: IfNotPresent
+          #配置持久化
+          volumeMounts:
+            # 这里一定要对应 mysql 数据存储的位置
+            # 通过 mysql 的配置可以更改这个目录
+            - mountPath: /var/lib/mysql
+#              pod里面有很多volumes，我要用哪个，要和下面一一对应
+              name: mysql-storage
+          ports:
+            - containerPort: 3306
+#        - name: mybook-live-hadoop
+      restartPolicy: Always
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mybook-mysql-live-claim
+#        - name: hadoop-storage
+#          persistentVolumeClaim:
+#            claimName: mybook-hadoop-live-claim
+      
