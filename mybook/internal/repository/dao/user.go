@@ -14,17 +14,25 @@ var (
 	ErrUserNotFund  = gorm.ErrRecordNotFound
 )
 
-type UserDao struct {
+type UserDAO interface {
+	FindByEmail(ctx context.Context, email string) (User, error)
+	FindByPhone(ctx context.Context, phone string) (User, error)
+	FindById(ctx context.Context, userId int64) (User, error)
+	Insert(ctx context.Context, u User) error
+	Edit(ctx context.Context, u User) error
+}
+
+type GORMUserDAO struct {
 	db *gorm.DB
 }
 
-func NewUserDao(db *gorm.DB) *UserDao {
-	return &UserDao{
+func NewUserDao(db *gorm.DB) UserDAO {
+	return &GORMUserDAO{
 		db: db,
 	}
 }
 
-func (dao *UserDao) FindByEmail(ctx context.Context, email string) (User, error) {
+func (dao *GORMUserDAO) FindByEmail(ctx context.Context, email string) (User, error) {
 	var u User
 	err := dao.db.WithContext(ctx).Where("email = ?", email).First(&u).Error
 	//第二种写法
@@ -32,7 +40,7 @@ func (dao *UserDao) FindByEmail(ctx context.Context, email string) (User, error)
 	return u, err
 }
 
-func (dao *UserDao) FindByPhone(ctx context.Context, phone string) (User, error) {
+func (dao *GORMUserDAO) FindByPhone(ctx context.Context, phone string) (User, error) {
 	var u User
 	err := dao.db.WithContext(ctx).Where("phone = ?", phone).First(&u).Error
 	//第二种写法
@@ -40,13 +48,13 @@ func (dao *UserDao) FindByPhone(ctx context.Context, phone string) (User, error)
 	return u, err
 }
 
-func (dao *UserDao) FindById(ctx context.Context, userId int64) (User, error) {
+func (dao *GORMUserDAO) FindById(ctx context.Context, userId int64) (User, error) {
 	var u User
 	err := dao.db.WithContext(ctx).Where("id = ?", userId).First(&u).Error
 	return u, err
 }
 
-func (dao *UserDao) Insert(ctx context.Context, u User) error {
+func (dao *GORMUserDAO) Insert(ctx context.Context, u User) error {
 	//存更新时间
 	now := time.Now().UnixMilli()
 	u.CreateTime = now
@@ -62,7 +70,7 @@ func (dao *UserDao) Insert(ctx context.Context, u User) error {
 	return err
 }
 
-func (dao *UserDao) Edit(ctx context.Context, u User) error {
+func (dao *GORMUserDAO) Edit(ctx context.Context, u User) error {
 	//存更新时间
 	now := time.Now().UnixMilli()
 	//u.CreateTime = now

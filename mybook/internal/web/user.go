@@ -1,30 +1,36 @@
 package web
 
 import (
+	"basic-go/mybook/internal/domain"
+	"basic-go/mybook/internal/service"
 	"fmt"
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	jwt "github.com/golang-jwt/jwt/v5"
-	"mybook/internal/domain"
-	"mybook/internal/service"
 	"net/http"
 	"time"
 )
 
 const biz = "login"
 
+// 确保 UserHandler 上实现了 handler 接口
+var _ handler = &UserHandler{}
+
+// 这个更优雅
+var _ handler = (*UserHandler)(nil)
+
 // UserHandler 定义和跟用户有关的路由
 type UserHandler struct {
-	svc         *service.UserService
-	codeSvc     *service.CodeService
+	svc         service.UserServicePackage
+	codeSvc     service.CodeServicePackage
 	emailExp    *regexp.Regexp
 	passwordExp *regexp.Regexp
 	birthdayExp *regexp.Regexp
 	phoneExp    *regexp.Regexp
 }
 
-func NewUserHandler(svc *service.UserService, codeSvc *service.CodeService) *UserHandler {
+func NewUserHandler(svc service.UserServicePackage, codeSvc service.CodeServicePackage) *UserHandler {
 	//校验参数
 	const (
 		emailRegExpPattern    = `^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$`

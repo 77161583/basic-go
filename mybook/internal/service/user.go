@@ -1,22 +1,31 @@
 package service
 
 import (
+	"basic-go/mybook/internal/domain"
+	"basic-go/mybook/internal/repository"
 	"context"
 	"errors"
 	"golang.org/x/crypto/bcrypt"
-	"mybook/internal/domain"
-	"mybook/internal/repository"
 )
 
 var ErrUseDuplicateEmail = repository.ErrUseDuplicate
 var ErrInvalidUserOrPassword = errors.New("账号/邮箱或密码不对")
 var ErrUserDataNotFund = errors.New("该用户不存在！")
 
-type UserService struct {
-	repo *repository.UserRepository
+type UserServicePackage interface {
+	SignUp(ctx context.Context, u domain.User) error
+	Login(ctx context.Context, email, password string) (domain.User, error)
+	FindOrCreate(ctx context.Context, phone string) (domain.User, error)
+	Profile(ctx context.Context, id int64) (domain.User, error)
+	FindById(ctx context.Context, userId int64) (domain.User, error)
+	Edit(ctx context.Context, u domain.User) error
 }
 
-func NewUserService(repo *repository.UserRepository) *UserService {
+type UserService struct {
+	repo repository.UserRepository
+}
+
+func NewUserService(repo repository.UserRepository) UserServicePackage {
 	return &UserService{
 		repo: repo,
 	}

@@ -1,11 +1,11 @@
 package service
 
 import (
+	"basic-go/mybook/internal/repository"
+	"basic-go/mybook/internal/service/sms"
 	"context"
 	"fmt"
 	"math/rand"
-	"mybook/internal/repository"
-	"mybook/internal/service/sms"
 )
 
 const codeTplId = "213123"
@@ -15,12 +15,17 @@ var (
 	ErrCodeSendTooMany        = repository.ErrCodeSendTooMany
 )
 
+type CodeServicePackage interface {
+	Send(ctx context.Context, biz string, phone string) error
+	Verify(ctx context.Context, biz, phone, inputCode string) (bool, error)
+}
+
 type CodeService struct {
-	repo   *repository.CodeRepository
+	repo   repository.CodeRepository
 	smsSvc sms.Service
 }
 
-func NewCodeService(repo *repository.CodeRepository, smsSvc sms.Service) *CodeService {
+func NewCodeService(repo repository.CodeRepository, smsSvc sms.Service) CodeServicePackage {
 	return &CodeService{
 		repo:   repo,
 		smsSvc: smsSvc,

@@ -1,32 +1,24 @@
 package main
 
 import (
+	"basic-go/mybook/internal/web/middleware"
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-	"mybook/config"
-	"mybook/internal/repository"
-	"mybook/internal/repository/cache"
-	"mybook/internal/repository/dao"
-	"mybook/internal/service"
-	"mybook/internal/service/sms/memory"
-	"mybook/internal/web"
-	"mybook/internal/web/middleware"
 	"net/http"
 	"strings"
 	"time"
 )
 
 func main() {
-	db := initDB()
-	server := initWebServer()
-	//注册路由
-	rdb := initRedis()
-	u := initUser(db, rdb)
-	u.RegisterRoutes(server)
+	//db := initDB()
+	//server := initWebServer()
+	////注册路由
+	//rdb := initRedis()
+	//u := initUser(db, rdb)
+	//u.RegisterRoutes(server)
+
+	server := InitWebServer()
 	server.GET("/hello", func(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "来了老弟！")
 	})
@@ -92,39 +84,4 @@ func initWebServer() *gin.Engine {
 		IgnorePaths("/users/login_sms").
 		IgnorePaths("/users/signup").Build())
 	return server
-}
-
-func initRedis() redis.Cmdable {
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: config.Config.Redis.Addr,
-	})
-	return redisClient
-}
-
-func initUser(db *gorm.DB, rdb redis.Cmdable) *web.UserHandler {
-	ud := dao.NewUserDao(db)
-	uc := cache.NewUserCache(rdb)
-	repo := repository.NewUserRepository(ud, uc)
-	svc := service.NewUserService(repo)
-	codeCache := cache.NewCodeCache(rdb)
-	codeRepo := repository.NewCodeRepository(codeCache)
-	smsSvc := memory.NewService()
-	codeSvc := service.NewCodeService(codeRepo, smsSvc)
-	u := web.NewUserHandler(svc, codeSvc)
-	return u
-}
-
-func initDB() *gorm.DB {
-	db, err := gorm.Open(mysql.Open(config.Config.DB.DSN))
-	if err != nil {
-		//只会在初始化的过程中panic
-		//panic相当于整个goroutine结束
-		//一旦初始化出错，应用就不要再启动了
-		panic(err)
-	}
-	err = dao.InitTables(db)
-	if err != nil {
-		panic(err)
-	}
-	return db
 }

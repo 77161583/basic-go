@@ -1,11 +1,11 @@
 package middleware
 
 import (
+	"basic-go/mybook/internal/web"
 	"encoding/gob"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"log"
-	"mybook/internal/web"
 	"net/http"
 	"strings"
 	"time"
