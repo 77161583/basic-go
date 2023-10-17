@@ -13,6 +13,8 @@ const codeTplId = "213123"
 var (
 	ErrCodeVerifyTooManyTimes = repository.ErrCodeVerifyTooManyTimes
 	ErrCodeSendTooMany        = repository.ErrCodeSendTooMany
+	ErrCodeInvalid            = repository.ErrCodeInvalid
+	ErrCodeTimeOut            = repository.ErrCodeTimeOut
 )
 
 type CodeServicePackage interface {

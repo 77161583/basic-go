@@ -77,10 +77,23 @@ func (u *UserHandler) LoginSMS(ctx *gin.Context) {
 	}
 	ok, err := u.codeSvc.Verify(ctx, biz, req.Phone, req.Code)
 	if err != nil {
-		ctx.JSON(http.StatusOK, Result{
-			Code: 5,
-			Msg:  "系统错误！",
-		})
+		switch err {
+		case service.ErrCodeInvalid:
+			ctx.JSON(http.StatusOK, Result{
+				Code: 5,
+				Msg:  "验证码失效，请重新获取验证码",
+			})
+		case service.ErrCodeTimeOut:
+			ctx.JSON(http.StatusOK, Result{
+				Code: 5,
+				Msg:  "验证码已过期!",
+			})
+		default:
+			ctx.JSON(http.StatusOK, Result{
+				Code: 5,
+				Msg:  "系统错误！",
+			})
+		}
 		return
 	}
 	if !ok {

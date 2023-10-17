@@ -8,6 +8,8 @@ import (
 var (
 	ErrCodeSendTooMany        = cache.ErrCodeSendTooMany
 	ErrCodeVerifyTooManyTimes = cache.ErrCodeVerifyTooManyTimes
+	ErrCodeInvalid            = cache.ErrCodeInvalid
+	ErrCodeTimeOut            = cache.ErrCodeTimeOut
 )
 
 type CodeRepository interface {
@@ -16,6 +18,7 @@ type CodeRepository interface {
 }
 
 type CacheCodeRepository struct {
+	//cache cache.CodeRedisCache
 	cache cache.CodeCache
 }
 
@@ -26,9 +29,9 @@ func NewCodeRepository(c cache.CodeCache) CodeRepository {
 }
 
 func (repo *CacheCodeRepository) Store(ctx context.Context, biz, phone, code string) error {
-	return repo.cache.Set(ctx, biz, phone, code)
+	return repo.cache.LocalSet(ctx, biz, phone, code)
 }
 
 func (repo *CacheCodeRepository) Verify(ctx context.Context, biz, phone, inputCode string) (bool, error) {
-	return repo.cache.Verify(ctx, biz, phone, inputCode)
+	return repo.cache.LocalVerify(ctx, biz, phone, inputCode)
 }
