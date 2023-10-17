@@ -83,7 +83,7 @@ func (c *RedisCodeCache) key(biz, phone string) string {
 	return fmt.Sprintf("phoneCode:%s:%s", biz, phone)
 }
 
-// CodeCache 第四次作业
+// CodeCache 第四次作业 开始 ——————————————————————————————————————————————————————————————————
 type CodeCache interface {
 	LocalSet(ctx context.Context, biz, phone, code string) error
 	LocalVerify(ctx context.Context, biz, phone, inputCode string) (bool, error)
@@ -114,7 +114,7 @@ func (c *LocalCodeCache) LocalSet(ctx context.Context, biz, phone, code string) 
 	// 设置验证码的过期时间为 1 分钟（
 	expirationTime := 1 * time.Minute
 
-	//好像会有并发问题，没有好的解决办法
+	//好像会有并发问题，暂时没有想到好的解决办法
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -145,7 +145,7 @@ func (c *LocalCodeCache) LocalVerify(ctx context.Context, biz, phone, inputCode 
 	_, timeExists := c.localCache.Load(key + ":timestamp")
 	// 查看时间戳是否存在
 	if timeExists {
-		// 没有找到相应的数据，返回错误
+		// 如果存在说明，验证码超时了
 		return false, ErrCodeTimeOut
 	}
 
