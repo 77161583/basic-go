@@ -353,10 +353,10 @@ func (u *UserHandler) Edit(ctx *gin.Context) {
 			ctx.String(http.StatusOK, "生日日期格式不正确，应为YYYY-MM-DD格式")
 			return
 		}
-		if req.Introduction == "" {
-			ctx.String(http.StatusOK, "个人简介不能为空")
-			return
-		}
+	}
+	if req.Introduction == "" {
+		ctx.String(http.StatusOK, "个人简介不能为空")
+		return
 	}
 	//调用service
 	err := u.svc.Edit(ctx, domain.User{
@@ -374,23 +374,23 @@ func (u *UserHandler) Edit(ctx *gin.Context) {
 }
 
 // Profile 作业回显
-func (u *UserHandler) Profile(ctx *gin.Context) {
-	//定义接收数据
-	type UserAllDataReq struct {
-		UserId int64 `json:"userId"`
-	}
-	//实例化一个req
-	var reqSelect UserAllDataReq
-	//用bing 获取数据
-	if err := ctx.Bind(&reqSelect); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "请求数据绑定失败"})
-	}
-	if reqSelect.UserId == 0 {
-		ctx.String(http.StatusOK, "用户Id丢失，无法编辑")
-		return
-	}
+func (u *UserHandler) Profile(ctx *gin.Context, id int64) {
+	////定义接收数据
+	//type UserAllDataReq struct {
+	//	UserId int64 `json:"userId"`
+	//}
+	////实例化一个req
+	//var reqSelect UserAllDataReq
+	////用bing 获取数据
+	//if err := ctx.Bind(&reqSelect); err != nil {
+	//	ctx.JSON(http.StatusBadRequest, gin.H{"error": "请求数据绑定失败"})
+	//}
+	//if reqSelect.UserId == 0 {
+	//	ctx.String(http.StatusOK, "用户Id丢失，无法编辑")
+	//	return
+	//}
 	//查看该条用户是否存在
-	UserData, _ := u.svc.FindById(ctx, reqSelect.UserId)
+	UserData, _ := u.svc.FindById(ctx, id)
 	if UserData.Id == 0 {
 		ctx.String(http.StatusOK, "未找到该用户")
 		return
