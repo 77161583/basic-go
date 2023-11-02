@@ -61,14 +61,59 @@ func (r *CacheUserRepository) Edit(ctx context.Context, u domain.User) error {
 	})
 }
 
-func (r *CacheUserRepository) FindById(ctx context.Context, userId int64) (domain.User, error) {
+func (r *CacheUserRepository) FindById(ctx context.Context, id int64) (domain.User, error) {
+	/***    自己之前的方法
 	u, err := r.dao.FindById(ctx, userId)
 	if err != nil {
 		return domain.User{}, err
 	}
-	//t1 := u.CreateTime / 1000
-	//t2 := u.UpdateTime / 1000
+	t1 := u.CreateTime / 1000
+	t2 := u.UpdateTime / 1000
 	return r.entityToDomain(u), nil
+	*/
+
+	u, err := r.cache.Get(ctx, id)
+	if err == nil {
+		return u, nil
+	}
+	//没有这个数据
+	if err == cache.ErrKeyNotExist {
+		//去数据里面加载
+	}
+
+	ue, err := r.dao.FindById(ctx, id)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	u = r.entityToDomain(ue)
+
+	_ = r.cache.Set(ctx, u)
+	//if err != nil {
+	//	//这里打日志做监控
+	//	//return
+	//}
+
+	//go func() {
+	//
+	//}()
+
+	return u, nil
+
+	//这里怎么办？ err = io.Err
+	//要不要去数据库加载？
+	//看起来我不应该加载？
+	//看起来我好像也要加载
+
+	//选加载 -- 做好兜底，万一 Redis 真的崩了，要保护住你的数据库
+	// 数据库限流
+
+	// 选不加载 -- 用户体验差一些
+
+	// 缓存里面有数据
+	// 缓存里面没有数据
+	// 缓存出错了
+
 }
 
 func (r *CacheUserRepository) CacheFindById(ctx context.Context, id int64) (domain.User, error) {
@@ -88,12 +133,14 @@ func (r *CacheUserRepository) CacheFindById(ctx context.Context, id int64) (doma
 
 	u = r.entityToDomain(ue)
 
+	//if err != nil {
+	//	//这里打日志做监控
+	//	//return
+	//}
+
 	go func() {
-		err = r.cache.Set(ctx, u)
-		if err != nil {
-			//这里打日志做监控
-			//return
-		}
+		_ = r.cache.Set(ctx, u)
+
 	}()
 
 	return u, nil
